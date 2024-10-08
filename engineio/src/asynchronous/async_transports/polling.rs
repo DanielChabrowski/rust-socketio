@@ -30,19 +30,29 @@ impl PollingTransport {
         base_url: Url,
         tls_config: Option<TlsConnector>,
         opening_headers: Option<HeaderMap>,
+        store_cookies: bool,
     ) -> Self {
         let client = match (tls_config, opening_headers) {
             (Some(config), Some(map)) => ClientBuilder::new()
                 .use_preconfigured_tls(config)
                 .default_headers(map)
+                .cookie_store(store_cookies)
                 .build()
                 .unwrap(),
             (Some(config), None) => ClientBuilder::new()
                 .use_preconfigured_tls(config)
+                .cookie_store(store_cookies)
                 .build()
                 .unwrap(),
-            (None, Some(map)) => ClientBuilder::new().default_headers(map).build().unwrap(),
-            (None, None) => Client::new(),
+            (None, Some(map)) => ClientBuilder::new()
+                .default_headers(map)
+                .cookie_store(store_cookies)
+                .build()
+                .unwrap(),
+            (None, None) => ClientBuilder::new()
+                .cookie_store(store_cookies)
+                .build()
+                .unwrap(),
         };
 
         let mut url = base_url;
@@ -168,7 +178,9 @@ mod test {
     #[tokio::test]
     async fn polling_transport_base_url() -> Result<()> {
         let url = crate::test::engine_io_server()?.to_string();
-        let transport = PollingTransport::new(Url::from_str(&url[..]).unwrap(), None, None);
+        let store_cookies = false;
+        let transport =
+            PollingTransport::new(Url::from_str(&url[..]).unwrap(), None, None, store_cookies);
         assert_eq!(
             transport.base_url().await?.to_string(),
             url.clone() + "?transport=polling"

@@ -39,6 +39,7 @@ pub struct ClientBuilder {
     namespace: String,
     tls_config: Option<TlsConnector>,
     opening_headers: Option<HeaderMap>,
+    store_cookies: bool,
     transport_type: TransportType,
     auth: Option<serde_json::Value>,
     pub(crate) reconnect: bool,
@@ -90,6 +91,7 @@ impl ClientBuilder {
             namespace: "/".to_owned(),
             tls_config: None,
             opening_headers: None,
+            store_cookies: false,
             transport_type: TransportType::Any,
             auth: None,
             reconnect: true,
@@ -261,6 +263,13 @@ impl ClientBuilder {
         self
     }
 
+    /// Enables or disables persistent cookies for polling transport.
+    /// Defaults to `false`.
+    pub fn store_cookies(mut self, enabled: bool) -> Self {
+        self.store_cookies = enabled;
+        self
+    }
+
     /// Sets data sent in the opening request.
     /// # Example
     /// ```rust
@@ -349,6 +358,8 @@ impl ClientBuilder {
         if let Some(headers) = self.opening_headers {
             builder = builder.headers(headers);
         }
+
+        builder = builder.store_cookies(self.store_cookies);
 
         let engine_client = match self.transport_type {
             TransportType::Any => builder.build_with_fallback()?,

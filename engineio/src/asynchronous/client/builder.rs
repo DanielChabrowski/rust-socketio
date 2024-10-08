@@ -22,6 +22,7 @@ pub struct ClientBuilder {
     url: Url,
     tls_config: Option<TlsConnector>,
     headers: Option<HeaderMap>,
+    store_cookies: bool,
     handshake: Option<HandshakePacket>,
     on_error: OptionalCallback<String>,
     on_open: OptionalCallback<()>,
@@ -42,8 +43,9 @@ impl ClientBuilder {
         }
         ClientBuilder {
             url,
-            headers: None,
             tls_config: None,
+            headers: None,
+            store_cookies: false,
             handshake: None,
             on_close: OptionalCallback::default(),
             on_data: OptionalCallback::default(),
@@ -62,6 +64,13 @@ impl ClientBuilder {
     /// Specify transport's HTTP headers
     pub fn headers(mut self, headers: HeaderMap) -> Self {
         self.headers = Some(headers);
+        self
+    }
+
+    /// Enables or disables persistent cookies for polling transport.
+    /// Defaults to `false`.
+    pub fn store_cookies(mut self, enabled: bool) -> Self {
+        self.store_cookies = enabled;
         self
     }
 
@@ -153,8 +162,12 @@ impl ClientBuilder {
         };
 
         // Start with polling transport
-        let mut transport =
-            PollingTransport::new(self.url.clone(), self.tls_config.clone(), headers);
+        let mut transport = PollingTransport::new(
+            self.url.clone(),
+            self.tls_config.clone(),
+            headers,
+            self.store_cookies,
+        );
 
         self.handshake_with_transport(&mut transport).await
     }
@@ -179,6 +192,7 @@ impl ClientBuilder {
             self.url,
             self.tls_config,
             self.headers.map(|v| v.try_into().unwrap()),
+            self.store_cookies,
         );
 
         // SAFETY: handshake function called previously.
