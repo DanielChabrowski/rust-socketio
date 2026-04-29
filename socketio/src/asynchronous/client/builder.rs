@@ -60,8 +60,6 @@ impl ClientBuilder {
     ///             match payload {
     ///                 Payload::Text(values) => println!("Received: {:#?}", values),
     ///                 Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                 // This is deprecated, use Payload::Text instead
-    ///                 Payload::String(str) => println!("Received: {}", str),
     ///             }
     ///         }.boxed()
     ///     };
@@ -134,8 +132,6 @@ impl ClientBuilder {
     ///                 match payload {
     ///                     Payload::Text(values) => println!("Received: {:#?}", values),
     ///                     Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                     // This is deprecated, use Payload::Text instead
-    ///                     Payload::String(str) => println!("Received: {}", str),
     ///                 }
     ///             }
     ///             .boxed()
@@ -170,8 +166,6 @@ impl ClientBuilder {
     ///                 match payload {
     ///                     Payload::Text(values) => println!("Received: {:#?}", values),
     ///                     Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                     // This is deprecated use Payload::Text instead
-    ///                     Payload::String(str) => println!("Received: {}", str),
     ///                 }
     ///             }
     ///             .boxed() // <-- this makes sure we end up with a `BoxFuture<_>`
@@ -216,8 +210,6 @@ impl ClientBuilder {
     ///                 match payload {
     ///                     Payload::Text(values) => println!("Received: {:#?}", values),
     ///                     Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                     // This is deprecated, use Payload::Text instead
-    ///                     Payload::String(str) => println!("Received: {}", str),
     ///                 }
     ///                 client.ack(ack, "received").await;
     ///             }
@@ -293,8 +285,8 @@ impl ClientBuilder {
     ///         .namespace("/admin")
     ///         .on_any(|event, payload, _client| {
     ///             async {
-    ///                 if let Payload::String(str) = payload {
-    ///                     println!("{}: {}", String::from(event), str);
+    ///                 if let Payload::Text(data) = payload {
+    ///                     println!("{}: {:#?}", String::from(event), data);
     ///                 }
     ///             }.boxed()
     ///         })
@@ -324,8 +316,8 @@ impl ClientBuilder {
     ///         .namespace("/admin")
     ///         .on_any_with_ack(|event, payload, client, ack| {
     ///             async move {
-    ///                 if let Payload::String(str) = payload {
-    ///                     println!("{}: {}", String::from(event), str);
+    ///                 if let Payload::Text(data) = payload {
+    ///                     println!("{}: {:#?}", String::from(event), data);
     ///                 }
     ///                 client.ack(ack, "received").await;
     ///             }.boxed()

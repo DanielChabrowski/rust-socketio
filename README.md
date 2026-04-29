@@ -29,7 +29,7 @@ use std::time::Duration;
 // socket to communicate with the server
 let callback = |payload: Payload, socket: RawClient| {
        match payload {
-           Payload::String(str) => println!("Received: {}", str),
+           Payload::Text(data) => println!("Received: {:#?}", data),
            Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
        }
        socket.emit("test", json!({"got ack": true})).expect("Server unreachable")
@@ -119,7 +119,7 @@ async fn main() {
     let callback = |payload: Payload, socket: Client| {
         async move {
             match payload {
-                Payload::String(str) => println!("Received: {}", str),
+                Payload::Text(data) => println!("Received: {:#?}", data),
                 Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
             }
             socket

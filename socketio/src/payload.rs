@@ -3,15 +3,12 @@ use bytes::Bytes;
 /// A type which represents a `payload` in the `socket.io` context.
 /// A payload could either be of the type `Payload::Binary`, which holds
 /// data in the [`Bytes`] type that represents the payload or of the type
-/// `Payload::String` which holds a [`std::string::String`]. The enum is
+/// `Payload::Text` which holds a vector of `serde_json::Value` values. The enum is
 /// used for both representing data that's send and data that's received.
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum Payload {
     Binary(Bytes),
     Text(Vec<serde_json::Value>),
-    #[deprecated = "Use `Payload::Text` instead. Continue existing behavior with: Payload::from(String)"]
-    /// String that is sent as JSON if this is a JSON string, or as a raw string if it isn't
-    String(String),
 }
 
 impl Payload {

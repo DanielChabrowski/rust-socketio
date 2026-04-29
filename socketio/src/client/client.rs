@@ -5,13 +5,13 @@ use std::{
 
 use super::{ClientBuilder, RawClient};
 use crate::{
+    Error,
     error::Result,
     packet::{Packet, PacketId},
-    Error,
 };
 pub(crate) use crate::{event::Event, payload::Payload};
 use backoff::ExponentialBackoff;
-use backoff::{backoff::Backoff, ExponentialBackoffBuilder};
+use backoff::{ExponentialBackoffBuilder, backoff::Backoff};
 
 #[derive(Clone)]
 pub struct Client {
@@ -84,9 +84,7 @@ impl Client {
     /// Sends a message to the server but `alloc`s an `ack` to check whether the
     /// server responded in a given time span. This message takes an event, which
     /// could either be one of the common events like "message" or "error" or a
-    /// custom event like "foo", as well as a data parameter. But be careful,
-    /// in case you send a [`Payload::String`], the string needs to be valid JSON.
-    /// It's even recommended to use a library like serde_json to serialize the data properly.
+    /// custom event like "foo", as well as a data parameter.
     /// It also requires a timeout `Duration` in which the client needs to answer.
     /// If the ack is acked in the correct time span, the specified callback is
     /// called. The callback consumes a [`Payload`] which represents the data send
@@ -108,8 +106,6 @@ impl Client {
     ///     match message {
     ///         Payload::Text(values) => println!("{:#?}", values),
     ///         Payload::Binary(bytes) => println!("Received bytes: {:#?}", bytes),
-    ///         // This is deprecated, use Payload::Text instead.
-    ///         Payload::String(str) => println!("{}", str),
     ///    }
     /// };
     ///
@@ -275,8 +271,8 @@ mod test {
     };
 
     use super::*;
-    use crate::error::Result;
     use crate::ClientBuilder;
+    use crate::error::Result;
     use serde_json::json;
     use serial_test::serial;
     use std::time::{Duration, SystemTime};

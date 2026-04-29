@@ -1,8 +1,8 @@
 use super::callback::Callback;
-use crate::packet::{Packet, PacketId};
 use crate::Error;
+use crate::packet::{Packet, PacketId};
 pub(crate) use crate::{event::CloseReason, event::Event, payload::Payload};
-use rand::{thread_rng, Rng};
+use rand::{Rng, thread_rng};
 use serde_json::Value;
 
 use crate::client::callback::{SocketAnyCallback, SocketCallback};
@@ -160,8 +160,7 @@ impl RawClient {
     /// Sends a message to the server but `alloc`s an `ack` to check whether the
     /// server responded in a given time span. This message takes an event, which
     /// could either be one of the common events like "message" or "error" or a
-    /// custom event like "foo", as well as a data parameter. But be careful,
-    /// in case you send a [`Payload::String`], the string needs to be valid JSON.
+    /// custom event like "foo", as well as a data parameter.
     /// It's even recommended to use a library like serde_json to serialize the data properly.
     /// It also requires a timeout `Duration` in which the client needs to answer.
     /// If the ack is acked in the correct time span, the specified callback is
@@ -184,8 +183,6 @@ impl RawClient {
     ///     match message {
     ///         Payload::Text(values) => println!("{:#?}", values),
     ///         Payload::Binary(bytes) => println!("Received bytes: {:#?}", bytes),
-    ///         // This is deprecated, use Payload::Text instead
-    ///         Payload::String(str) => println!("{}", str),
     ///    }
     /// };
     ///
@@ -450,7 +447,7 @@ mod test {
     use std::thread::sleep;
 
     use super::*;
-    use crate::{client::TransportType, payload::Payload, ClientBuilder};
+    use crate::{ClientBuilder, client::TransportType, payload::Payload};
     use bytes::Bytes;
     use native_tls::TlsConnector;
     use serde_json::json;
@@ -462,16 +459,13 @@ mod test {
 
         let socket = ClientBuilder::new(url)
             .on("test", |msg, _| match msg {
-                #[allow(deprecated)]
-                Payload::String(str) => println!("Received string: {}", str),
                 Payload::Text(text) => println!("Received json: {:#?}", text),
                 Payload::Binary(bin) => println!("Received binary data: {:#?}", bin),
             })
             .connect()?;
 
         let payload = json!({"token": 123});
-        #[allow(deprecated)]
-        let result = socket.emit("test", Payload::String(payload.to_string()));
+        let result = socket.emit("test", Payload::Text(vec![payload.clone()]));
 
         assert!(result.is_ok());
 
@@ -525,17 +519,19 @@ mod test {
 
         assert!(socket.emit("binary", Bytes::from_static(&[46, 88])).is_ok());
 
-        assert!(socket
-            .emit_with_ack(
-                "binary",
-                json!("pls ack"),
-                Duration::from_secs(1),
-                |payload, _| {
-                    println!("Yehaa the ack got acked");
-                    println!("With data: {:#?}", payload);
-                }
-            )
-            .is_ok());
+        assert!(
+            socket
+                .emit_with_ack(
+                    "binary",
+                    json!("pls ack"),
+                    Duration::from_secs(1),
+                    |payload, _| {
+                        println!("Yehaa the ack got acked");
+                        println!("With data: {:#?}", payload);
+                    }
+                )
+                .is_ok()
+        );
 
         sleep(Duration::from_secs(2));
 
@@ -566,17 +562,19 @@ mod test {
 
         assert!(socket.emit("binary", Bytes::from_static(&[46, 88])).is_ok());
 
-        assert!(socket
-            .emit_with_ack(
-                "binary",
-                json!("pls ack"),
-                Duration::from_secs(1),
-                |payload, _| {
-                    println!("Yehaa the ack got acked");
-                    println!("With data: {:#?}", payload);
-                }
-            )
-            .is_ok());
+        assert!(
+            socket
+                .emit_with_ack(
+                    "binary",
+                    json!("pls ack"),
+                    Duration::from_secs(1),
+                    |payload, _| {
+                        println!("Yehaa the ack got acked");
+                        println!("With data: {:#?}", payload);
+                    }
+                )
+                .is_ok()
+        );
 
         test_socketio_socket(socket, "/admin".to_owned())
     }
@@ -807,20 +805,22 @@ mod test {
             )
         );
 
-        assert!(socket
-            .emit_with_ack(
-                "test",
-                Payload::from("123"),
-                Duration::from_secs(10),
-                |message: Payload, _| {
-                    println!("Yehaa! My ack got acked?");
-                    if let Payload::Text(values) = message {
-                        println!("Received ack");
-                        println!("Ack data: {values:#?}");
+        assert!(
+            socket
+                .emit_with_ack(
+                    "test",
+                    Payload::from("123"),
+                    Duration::from_secs(10),
+                    |message: Payload, _| {
+                        println!("Yehaa! My ack got acked?");
+                        if let Payload::Text(values) = message {
+                            println!("Received ack");
+                            println!("Ack data: {values:#?}");
+                        }
                     }
-                }
-            )
-            .is_ok());
+                )
+                .is_ok()
+        );
 
         Ok(())
     }

@@ -53,23 +53,6 @@ impl Packet {
                 1,
                 Some(vec![bin_data]),
             )),
-            #[allow(deprecated)]
-            Payload::String(str_data) => {
-                let payload = if serde_json::from_str::<IgnoredAny>(&str_data).is_ok() {
-                    format!("[\"{event}\",{str_data}]")
-                } else {
-                    format!("[\"{event}\",\"{str_data}\"]")
-                };
-
-                Ok(Packet::new(
-                    PacketId::Event,
-                    nsp.to_owned(),
-                    Some(payload),
-                    id,
-                    0,
-                    None,
-                ))
-            }
             Payload::Text(mut data) => {
                 let mut payload_args = vec![serde_json::Value::String(event.to_string())];
                 payload_args.append(&mut data);
@@ -99,22 +82,6 @@ impl Packet {
                 0,
                 None,
             ),
-            #[allow(deprecated)]
-            Payload::String(str_data) => {
-                let payload = if serde_json::from_str::<IgnoredAny>(&str_data).is_ok() {
-                    format!("[{str_data}]")
-                } else {
-                    format!("[{str_data:?}]")
-                };
-                Packet::new(
-                    PacketId::Ack,
-                    nsp.to_owned(),
-                    Some(payload),
-                    Some(id),
-                    0,
-                    None,
-                )
-            }
             Payload::Binary(data) => Packet::new(
                 PacketId::BinaryAck,
                 nsp.to_owned(),
@@ -660,30 +627,6 @@ mod test {
                 id: None,
                 attachment_count: 1,
                 attachments: Some(vec![Bytes::from_static(&[0, 4, 9])])
-            }
-        )
-    }
-
-    #[test]
-    #[allow(deprecated)]
-    fn new_from_payload_string() {
-        let payload = Payload::String("test".to_owned());
-        let result = Packet::new_from_payload(
-            payload.clone(),
-            "other_event".into(),
-            "other_namespace",
-            Some(10),
-        )
-        .unwrap();
-        assert_eq!(
-            result,
-            Packet {
-                packet_type: PacketId::Event,
-                nsp: "other_namespace".to_owned(),
-                data: Some("[\"other_event\",\"test\"]".to_owned()),
-                id: Some(10),
-                attachment_count: 0,
-                attachments: None
             }
         )
     }

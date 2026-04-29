@@ -36,7 +36,8 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## _[Unreleased]_
 
-_nothing new to show for… yet!_>
+- Payload::String is now removed.
+- Added acking of server messages.
 
 ## <a name="060">[0.6.0] - _Multi-payload fix and http 1.0_ </a>
 
@@ -285,4 +286,3 @@ _2021.01.05_
     * custom events like "foo", "on_payment", etc.
     * send json-data to the server (recommended to use serde_json as it provides safe handling of json data).
     * send json-data to the server and receive an ack with a possible message.
-

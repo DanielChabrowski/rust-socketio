@@ -65,8 +65,6 @@ impl ClientBuilder {
     ///            match payload {
     ///                Payload::Text(values) => println!("Received: {:#?}", values),
     ///                Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                // This payload type is deprecated, use Payload::Text instead
-    ///                Payload::String(str) => println!("Received: {}", str),
     ///            }
     /// };
     ///
@@ -162,8 +160,6 @@ impl ClientBuilder {
     ///            match payload {
     ///                Payload::Text(values) => println!("Received: {:#?}", values),
     ///                Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                // This payload type is deprecated, use Payload::Text instead
-    ///                Payload::String(str) => println!("Received: {}", str),
     ///            }
     ///     })
     ///     .on("error", |err, _| eprintln!("Error: {:#?}", err))
@@ -196,8 +192,6 @@ impl ClientBuilder {
     ///            match payload {
     ///                Payload::Text(values) => println!("Received: {:#?}", values),
     ///                Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-    ///                // This payload type is deprecated, use Payload::Text instead
-    ///                Payload::String(str) => println!("Received: {}", str),
     ///            }
     ///            client.ack(ack_id, "received");
     ///     })
@@ -226,8 +220,8 @@ impl ClientBuilder {
     /// let client = ClientBuilder::new("http://localhost:4200/")
     ///     .namespace("/admin")
     ///     .on_any(|event, payload, _client| {
-    ///         if let Payload::String(str) = payload {
-    ///           println!("{} {}", String::from(event), str);
+    ///         if let Payload::Text(data) = payload {
+    ///           println!("{} {:?}", String::from(event), data);
     ///         }
     ///     })
     ///     .connect();
@@ -255,8 +249,8 @@ impl ClientBuilder {
     /// let client = ClientBuilder::new("http://localhost:4200/")
     ///     .namespace("/admin")
     ///     .on_any_with_ack(|event, payload, client, ack_id| {
-    ///         if let Payload::String(str) = payload {
-    ///           println!("{} {}", String::from(event), str);
+    ///         if let Payload::Text(data) = payload {
+    ///           println!("{} {:#?}", String::from(event), data);
     ///         }
     ///         if let Err(e) = client.ack(ack_id, "received") {
     ///             println!("error acking: {e:?}");

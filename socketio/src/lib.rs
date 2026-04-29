@@ -13,8 +13,6 @@
 //!        match payload {
 //!            Payload::Text(values) => println!("Received: {:#?}", values),
 //!            Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-//!            // This variant is deprecated, use Payload::Text instead
-//!            Payload::String(str) => println!("Received: {}", str),
 //!        }
 //!        socket.emit("test", json!({"got ack": true})).expect("Server unreachable")
 //! };
@@ -111,8 +109,6 @@ async fn main() {
             match payload {
                 Payload::Text(values) => println!("Received: {:#?}", values),
                 Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-                // This is deprecated use Payload::Text instead
-                Payload::String(str) => println!("Received: {}", str),
             }
             socket
                 .emit("test", json!({"got ack": true}))

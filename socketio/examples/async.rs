@@ -1,7 +1,7 @@
 use futures_util::FutureExt;
 use rust_socketio::{
-    asynchronous::{Client, ClientBuilder},
     Payload,
+    asynchronous::{Client, ClientBuilder},
 };
 use serde_json::json;
 use std::time::Duration;
@@ -16,9 +16,6 @@ async fn main() {
             match payload {
                 Payload::Text(values) => println!("Received: {:#?}", values),
                 Payload::Binary(bin_data) => println!("Received bytes: {:#?}", bin_data),
-                // Use Payload::Text instead
-                #[allow(deprecated)]
-                Payload::String(str) => println!("Received: {}", str),
             }
             socket
                 .emit("test", json!({"got ack": true}))
