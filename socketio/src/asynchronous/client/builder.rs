@@ -8,7 +8,7 @@ use rust_engineio::{
 use std::collections::HashMap;
 use url::Url;
 
-use crate::{error::Result, Event, Payload, TransportType};
+use crate::{Event, Payload, TransportType, error::Result};
 
 use super::{
     callback::{
@@ -336,7 +336,7 @@ impl ClientBuilder {
     /// ```
     pub fn on_any_with_ack<F>(mut self, callback: F) -> Self
     where
-        F: for<'a> FnMut(Event, Payload, Client, i32) -> BoxFuture<'static, ()>
+        F: for<'a> FnMut(Event, Payload, Client, Option<i32>) -> BoxFuture<'static, ()>
             + 'static
             + Send
             + Sync,

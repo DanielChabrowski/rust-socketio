@@ -1,4 +1,4 @@
-use futures_util::{future::BoxFuture, FutureExt};
+use futures_util::{FutureExt, future::BoxFuture};
 use std::{
     fmt::Debug,
     future::Future,
@@ -98,16 +98,13 @@ impl DerefMut for Callback<DynAsyncAnyCallback> {
 impl Callback<DynAsyncAnyCallback> {
     pub(crate) fn new_with_ack<T>(mut callback: T) -> Self
     where
-        T: for<'a> FnMut(Event, Payload, Client, i32) -> BoxFuture<'static, ()>
+        T: for<'a> FnMut(Event, Payload, Client, Option<i32>) -> BoxFuture<'static, ()>
             + 'static
             + Sync
             + Send,
     {
         Callback {
-            inner: Box::new(move |e, p, c, a| match a {
-                Some(a) => callback(e, p, c, a).boxed(),
-                None => std::future::ready(()).boxed(),
-            }),
+            inner: Box::new(move |e, p, c, a| callback(e, p, c, a).boxed()),
         }
     }
 
