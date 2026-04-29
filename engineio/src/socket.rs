@@ -9,7 +9,7 @@ use std::sync::RwLock;
 use std::time::Duration;
 use std::{fmt::Debug, sync::atomic::Ordering};
 use std::{
-    sync::{atomic::AtomicBool, Arc, Mutex},
+    sync::{Arc, Mutex, atomic::AtomicBool},
     time::Instant,
 };
 
@@ -217,7 +217,6 @@ impl Socket {
     }
 }
 
-#[cfg_attr(tarpaulin, ignore)]
 impl Debug for Socket {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_fmt(format_args!(

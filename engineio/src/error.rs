@@ -10,7 +10,6 @@ use url::ParseError as UrlParseError;
 /// Enumeration of all possible errors in the `socket.io` context.
 #[derive(Error, Debug)]
 #[non_exhaustive]
-#[cfg_attr(tarpaulin, ignore)]
 pub enum Error {
     // Conform to https://rust-lang.github.io/api-guidelines/naming.html#names-use-a-consistent-word-order-c-word-order
     // Negative verb-object

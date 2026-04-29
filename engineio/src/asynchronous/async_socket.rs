@@ -2,21 +2,21 @@ use std::{
     fmt::Debug,
     pin::Pin,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
 };
 
 use async_stream::try_stream;
 use bytes::Bytes;
-use futures_util::{stream, Stream, StreamExt};
+use futures_util::{Stream, StreamExt, stream};
 use tokio::{runtime::Handle, sync::Mutex, time::Instant};
 
 use crate::{
+    Error, Packet, PacketId,
     asynchronous::{callback::OptionalCallback, transport::AsyncTransportType},
     error::Result,
     packet::{HandshakePacket, Payload},
-    Error, Packet, PacketId,
 };
 
 #[derive(Clone)]
@@ -275,7 +275,6 @@ impl Socket {
     }
 }
 
-#[cfg_attr(tarpaulin, ignore)]
 impl Debug for Socket {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Socket")
